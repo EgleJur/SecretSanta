@@ -1,7 +1,6 @@
 package Secret.Santa.Secret.Santa.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -11,7 +10,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
-    private int user_id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
     private String name;
     private String email;
     private String password;

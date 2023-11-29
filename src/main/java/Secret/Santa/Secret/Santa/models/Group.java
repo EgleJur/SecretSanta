@@ -1,7 +1,6 @@
 package Secret.Santa.Secret.Santa.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -11,7 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Group {
-    private int group_id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "group_id", nullable = false)
+    private Integer groupId;
     private String name;
     //TODO date
     private double budget;
