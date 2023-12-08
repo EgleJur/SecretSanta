@@ -19,7 +19,13 @@ export function GroupList({ handleCreateGroupClick }) {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch(`/api/v1/groups/user/${params.id}/groups`);
+      const response = await fetch(`/api/v1/groups/user/${params.id}/groups`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: 'Bearer' + localStorage.getItem('token'), 
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

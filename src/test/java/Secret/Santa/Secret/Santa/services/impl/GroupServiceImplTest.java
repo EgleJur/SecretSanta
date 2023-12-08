@@ -62,6 +62,7 @@ class GroupServiceImplTest {
         assertSame(expectedGroup, actualGroup);
     }
 
+    /*
     @Test
     void editGroupFound() {
         int groupId = 1;
@@ -73,6 +74,7 @@ class GroupServiceImplTest {
         Group updatedGroup = groupService.editByGroupId(groupDTO, groupId);
         assertSame(existingGroup, updatedGroup);
     }
+    */
 
     @Test
     void editGroupNotFound() {

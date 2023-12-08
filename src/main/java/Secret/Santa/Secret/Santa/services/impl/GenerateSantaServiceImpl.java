@@ -10,6 +10,7 @@ import Secret.Santa.Secret.Santa.services.IGenerateSantaService;
 import Secret.Santa.Secret.Santa.validationUnits.GenerateSantaUtils;
 import Secret.Santa.Secret.Santa.validationUnits.GroupUtils;
 import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.util.*;
 import static Secret.Santa.Secret.Santa.mappers.GenerateSantaMapper.toSanta;
 
 @Service
+@RequiredArgsConstructor
 public class GenerateSantaServiceImpl implements IGenerateSantaService {
     private static final Logger logger = LoggerFactory.getLogger(GenerateSantaServiceImpl.class);
 
@@ -31,13 +33,13 @@ public class GenerateSantaServiceImpl implements IGenerateSantaService {
     private final UserUtils userUtils;
 
 
-    public GenerateSantaServiceImpl(IGenerateSantaRepo generateSantaRepository,
-                                    GenerateSantaUtils generateSantaUtils, GroupUtils groupUtils, UserUtils userUtils) {
-        this.generateSantaRepository = generateSantaRepository;
-        this.generateSantaUtils = generateSantaUtils;
-        this.groupUtils = groupUtils;
-        this.userUtils = userUtils;
-    }
+//    public GenerateSantaServiceImpl(IGenerateSantaRepo generateSantaRepository,
+//                                    GenerateSantaUtils generateSantaUtils, GroupUtils groupUtils, UserUtils userUtils) {
+//        this.generateSantaRepository = generateSantaRepository;
+//        this.generateSantaUtils = generateSantaUtils;
+//        this.groupUtils = groupUtils;
+//        this.userUtils = userUtils;
+//    }
 
     @Override
     public List<GenerateSanta> getAllGenerateSantaByGroup(Integer groupId) {

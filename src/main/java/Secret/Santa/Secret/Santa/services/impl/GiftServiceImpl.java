@@ -29,18 +29,18 @@ public class GiftServiceImpl implements IGiftService {
     private static final Logger logger = LoggerFactory.getLogger(GiftServiceImpl.class);
     private final GiftMapper giftMapper;
     @Autowired
-    IGiftRepo iGiftRepo;
+    private final IGiftRepo iGiftRepo;
 
     private final GroupUtils groupUtils;
     private final UserUtils userUtils;
 
-    @Autowired
-    public GiftServiceImpl(GiftMapper giftMapper, IGiftRepo iGiftRepo, GroupUtils groupUtils, UserUtils userUtils) {
-        this.giftMapper = giftMapper;
-        this.iGiftRepo = iGiftRepo;
-        this.groupUtils = groupUtils;
-        this.userUtils = userUtils;
-    }
+//    @Autowired
+//    public GiftServiceImpl(GiftMapper giftMapper, IGiftRepo iGiftRepo, GroupUtils groupUtils, UserUtils userUtils) {
+//        this.giftMapper = giftMapper;
+//        this.iGiftRepo = iGiftRepo;
+//        this.groupUtils = groupUtils;
+//        this.userUtils = userUtils;
+//    }
 
     @Override
     public List<GiftDTO> getAllGifts() {

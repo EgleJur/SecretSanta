@@ -8,7 +8,6 @@ export function getUsername() {
   const token = localStorage.getItem("token");
   if (token !== null) {
     const decoded = jwtDecode(token);
-    console.log("decoded", decoded)
     return decoded.sub;
   }
   return null;
@@ -28,90 +27,91 @@ export function setUsernameIndex() {
 export function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [user, setUser] = useState("");
   const [role, setRole] = useState("");
   const navigate = useNavigate();
-  const { appState, setAppState } = useContext(AuthContext);
+
   const [state, setState] = useState({
-    email: "",
     username: "",
     password: "",
     loading: false,
   });
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
+  const listUrl = useHref("/menus/list");
+
+  const handleUsernameChange = (event) => {
+    setUsername(event.target.value);
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
 
-  const handleRegisterClick = () => {
-    navigate(`/auth/register`);
-  };
+  //   const handleSubmit = (event) => {
+  //     if(!appState.isAuthenticated){
+  //     setAppState({ type: "LOADING", value: true })
+  //     event.preventDefault();
 
-  const handleSubmit = (event) => {
-    if (!appState.isAuthenticated) {
-      setAppState({ type: "LOADING", value: true });
-      event.preventDefault();
+  //     const credentials = {
+  //       username: username,
+  //       password: password
+  //     };
 
-      const credentials = {
-        email: email,
-        password: password,
-      };
+  // fetch('api/v1/login', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     // 'Accept': 'application/json'
+  //   },
+  //   body: JSON.stringify(credentials)
+  // })
+  //   .then(applyResult)
+  //   .catch((error) => {
+  //     setError('An error occurred. Please try again later.');
+  //   })
+  // }
+  // else{
+  //     alert("You are already logged in");
+  // setAppState({ type: "AUTHENTICATED", value: true })
+  //     }
+  //   };
 
-      fetch("/api/v1/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("accessToken"),
-        },
-        body: JSON.stringify(credentials),
-      })
-        .then(applyResult)
-        .catch((error) => {
-          setError("An error occurred. Please try again later.");
-        });
-    } else {
-      alert("You are already logged in");
-      setAppState({ type: "AUTHENTICATED", value: true });
-    }
-  };
+  //   const applyResult = (result) => {
+  //     const clear = () => {
+  //         clearForm();
+  //     }
+  //         if (result.ok) {
+  //            setAppState({type: "LOGIN", value: true })
+  //            navigate('/menus/list');
+  //         } else {
+  //           setError('Login failed. Please try again.');
+  //         }
+  //   }
+  //   const clearForm = () => {
+  //     setState({
+  //         ...state, user: '',
+  //         password: null,
+  //     })
+  // }
 
-  const applyResult = (result) => {
-    if (result.ok) {
-      result.json().then((data) => {
-        console.log("DATA:", data);
-        localStorage.setItem("token", data);
-        setUsernameIndex();
-        console.log("USERNAME INDEX:", getUsername());
-        console.log("LOCAL STORAGE", localStorage);
-        setAppState({ type: "LOGIN", value: true });
-        navigate(`/users/${data.userId}`);
-      });
-    } else {
-      setError("Login failed. Please try again.");
-    }
-  };
+  // const { appState, setAppState } = useContext(AuthContext)
 
   return (
     <Grid centered columns={2}>
       <Grid.Column>
         <h2>Log in</h2>
-        <Segment style={{ backgroundColor: "rgb(250, 110, 110" }} inverted>
-          <Form style={{ backgroundColor: "rgb(250, 110, 110" }} inverted>
+        <Segment color="red" inverted>
+          <Form color="red" inverted>
             <Form.Group widths="equal">
               <Form.Field>
-                <label>Email address</label>
+                <label>User name</label>
                 <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={handleEmailChange}
+                  type="text"
+                  name="username"
+                  placeholder="User name"
+                  value={username}
+                  onChange={handleUsernameChange}
                 />
               </Form.Field>
               <Form.Field>
@@ -126,22 +126,12 @@ export function LoginPage() {
               </Form.Field>
             </Form.Group>
             <Button
-              fluid
               type="submit"
               color="white"
               inverted
-              onClick={handleSubmit}
+              //   onClick={handleSubmit}
             >
-              Login
-            </Button>
-            <Button
-              className="create mt-2"
-              color="white"
-              inverted
-              fluid
-              onClick={handleRegisterClick}
-            >
-              Register
+              Confirm
             </Button>
           </Form>
         </Segment>

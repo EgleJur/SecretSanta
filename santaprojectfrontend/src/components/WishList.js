@@ -24,7 +24,13 @@ export function WishList({ recipientId }) {
   const fetchGifts = async () => {
     try {
       const id = parseInt(recipientId);
-      const response = await fetch("/api/v1/gifts/createdBy/" + id);
+      const response = await fetch("/api/v1/gifts/createdBy/" + id, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer" + localStorage.getItem("token"),
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

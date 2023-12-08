@@ -12,6 +12,7 @@ import Secret.Santa.Secret.Santa.services.IGroupService;
 import Secret.Santa.Secret.Santa.validationUnits.GroupUtils;
 import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class GroupServiceImpl implements IGroupService {
     private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
     @Autowired
@@ -33,18 +34,18 @@ public class GroupServiceImpl implements IGroupService {
 
     private final UserUtils userUtils;
     private final GroupMapper groupMapper;
-    private GroupUtils groupUtils;
-    private IGiftRepo iGiftRepo;
+    private final GroupUtils groupUtils;
+    private final IGiftRepo iGiftRepo;
 
-    @Autowired
-    public GroupServiceImpl(IGroupRepo groupRepo, IUserRepo userRepo, UserUtils userUtils, GroupMapper groupMapper, GroupUtils groupUtils, IGiftRepo iGiftRepo) {
-        this.groupRepo = groupRepo;
-        this.userRepo = userRepo;
-        this.userUtils = userUtils;
-        this.groupMapper = groupMapper;
-        this.groupUtils = groupUtils;
-        this.iGiftRepo = iGiftRepo;
-    }
+//    @Autowired
+//    public GroupServiceImpl(IGroupRepo groupRepo, IUserRepo userRepo, UserUtils userUtils, GroupMapper groupMapper, GroupUtils groupUtils, IGiftRepo iGiftRepo) {
+//        this.groupRepo = groupRepo;
+//        this.userRepo = userRepo;
+//        this.userUtils = userUtils;
+//        this.groupMapper = groupMapper;
+//        this.groupUtils = groupUtils;
+//        this.iGiftRepo = iGiftRepo;
+//    }
 
     @Override
     public List<GroupDTO> getAllGroups() {

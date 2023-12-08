@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { GiftList } from "./GiftList";
 import { GroupList } from "./GroupList";
-//import AuthContext from "../AuthContext";
+import AuthContext from "../AuthContext";
 
 
 export function ViewUser() {
@@ -14,17 +14,13 @@ export function ViewUser() {
     name: "",
     email: "",
   });
-
-  const { appState, setAppState } = useContext(AuthContext);
-
-
   const fetchUser = async () => {
     try {
       const response = await fetch("/api/v1/users/" + params.id, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer' + localStorage.getItem('token'), 
+          Authorization: 'Bearer' + localStorage.getItem('token'),
         },
       });
       if (!response.ok) {
