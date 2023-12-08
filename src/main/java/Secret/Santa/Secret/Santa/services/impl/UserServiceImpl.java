@@ -58,6 +58,12 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return user;
     }
+    @Override
+    public User loadUserByEmail(String username) throws UsernameNotFoundException {
+        var user = iUserRepo.findByEmail(username) //TODO check if this is correct
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return user;
+    }
 
     @Override
     public List<UserDTO> getAllUsers() {
