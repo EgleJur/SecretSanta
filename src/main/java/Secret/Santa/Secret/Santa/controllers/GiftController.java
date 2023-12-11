@@ -74,16 +74,17 @@ public class GiftController {
         }
     }
 
+    //TODO fix authentication for updateGift method
     @PutMapping
-    public ResponseEntity<GiftDTO> updateGift(@RequestBody GiftDTO giftDTO, Principal principal) {
-        String authenticatedEmail = principal.getName();
+    public ResponseEntity<GiftDTO> updateGift(@RequestBody GiftDTO giftDTO/*,Principal principal*/) {
+        //String authenticatedEmail = principal.getName();
         try {
-            if (userUtils.getUserById(giftDTO.getCreatedBy()).getEmail().equals(authenticatedEmail)) {
+           // if (userUtils.getUserById(giftDTO.getCreatedBy()).getEmail().equals(authenticatedEmail)) {
                 GiftDTO updatedGiftDTO = giftService.updateGift(giftDTO);
                 return new ResponseEntity<>(updatedGiftDTO, HttpStatus.OK);
-            } else {
-                throw new AccessDeniedException("Authenticated user does not have access to this user's gifts");
-            }
+//            } else {
+//                throw new AccessDeniedException("Authenticated user does not have access to this user's gifts");
+//            }
         } catch (Exception e) {
             logger.error("Error updating gift with ID: {}", giftDTO.getGiftId(), e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -101,6 +102,7 @@ public class GiftController {
         }
     }
 
+    //TODO fix authentication for getGiftsCreatedByUser method
     @GetMapping("/createdBy/{userId}")
     public ResponseEntity<List<Gift>> getGiftsCreatedByUser(@PathVariable int userId) {//}, Principal principal) {
         //  String authenticatedEmail = principal.getName();
