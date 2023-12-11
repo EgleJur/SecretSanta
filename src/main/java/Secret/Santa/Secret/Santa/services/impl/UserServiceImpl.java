@@ -1,21 +1,18 @@
 package Secret.Santa.Secret.Santa.services.impl;
 
 import Secret.Santa.Secret.Santa.mappers.UserMapper;
-import Secret.Santa.Secret.Santa.models.DTO.GroupDTO;
 import Secret.Santa.Secret.Santa.models.DTO.UserDTO;
 import Secret.Santa.Secret.Santa.models.Role;
 import Secret.Santa.Secret.Santa.models.Gift;
 import Secret.Santa.Secret.Santa.models.Group;
-import Secret.Santa.Secret.Santa.models.Role;
 import Secret.Santa.Secret.Santa.models.User;
 import Secret.Santa.Secret.Santa.repos.IGiftRepo;
 import Secret.Santa.Secret.Santa.repos.IGroupRepo;
 import Secret.Santa.Secret.Santa.repos.IUserRepo;
 import Secret.Santa.Secret.Santa.services.IUserService;
-import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,12 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -41,16 +35,6 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
     private final UserUtils userUtils;
     private final IGroupRepo iGroupRepo;
     private final IGroupRepo groupRepo;
-
-//    public UserServiceImpl(UserMapper userMapper, IUserRepo iUserRepo, IGiftRepo iGiftRepo, UserUtils userUtils,
-//                           IGroupRepo iGroupRepo, GroupServiceImpl groupService, IGroupRepo groupRepo) {
-//        this.userMapper = userMapper;
-//        this.iUserRepo = iUserRepo;
-//        this.iGiftRepo = iGiftRepo;
-//        this.userUtils = userUtils;
-//        this.iGroupRepo = iGroupRepo;
-//        this.groupRepo = groupRepo;
-//    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -64,6 +48,14 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return user;
     }
+
+    @Override
+    public User loadUserByEmail(String username) throws UsernameNotFoundException {
+        var user = iUserRepo.findByEmail(username) //TODO check if this is correct
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return user;
+    }
+
 
     @Override
     public List<UserDTO> getAllUsers() {
@@ -186,8 +178,15 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
 
     @Transactional(readOnly = true)
     public List<UserDTO> getUsersByNameContaining(String nameText) {
-        return iUserRepo.findByNameContainingIgnoreCase(nameText).stream()
-                .map(userMapper::toUserDTO).collect(Collectors.toList());
+        try {
+            List<User> users = iUserRepo.findByNameContainingIgnoreCase(nameText);
+            return users.stream()
+                    .map(userMapper::toUserDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Error retrieving users with name containing: {}", nameText, e);
+            throw e;
+        }
     }
 
 

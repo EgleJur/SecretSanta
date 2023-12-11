@@ -21,7 +21,6 @@ public class Group {
     @Id
     @Column(name = "group_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Setter(value = AccessLevel.NONE)
     private Integer groupId;
     @Column(name = "Name")
     private String name;
@@ -30,7 +29,7 @@ public class Group {
     @Column(name = "Budget")
     private double budget;
 
-    @ManyToMany(fetch = FetchType.EAGER)//, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
     @JoinTable(
             name = "users_in_groups",
@@ -45,7 +44,6 @@ public class Group {
     private List<Gift> gifts;
 
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
-//    @JsonIgnore
     private List<GenerateSanta> generatedSanta;
 
     @ManyToOne

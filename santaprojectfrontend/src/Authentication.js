@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useLocation, Navigate, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect } from "react";
+import { useLocation, Navigate } from "react-router-dom";
 import AuthContext from "./AuthContext";
 
 const Authentication = ({ children }) => {

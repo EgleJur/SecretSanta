@@ -40,28 +40,20 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-//    @JsonIgnore
-//    private List<Group> ownedGroups;
-//
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JsonIgnore
-//    @JoinTable(name = "users_in_groups",
-//            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "group_id", referencedColumnName = "group_id"))
-//    private List<Group> groups;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
+
     @Override
     public String getUsername() {
         return email.toLowerCase();
     }
+
     public void getName(String name) {
         this.name = name;
     }
+
     public void getEmail(String email) {
         this.email = email;
     }

@@ -1,9 +1,8 @@
 package Secret.Santa.Secret.Santa.authentification;
 
-import Secret.Santa.Secret.Santa.models.DTO.UserDTO;
 import Secret.Santa.Secret.Santa.jwt.JwtService;
-import Secret.Santa.Secret.Santa.models.Role;
-import Secret.Santa.Secret.Santa.models.User;
+import Secret.Santa.Secret.Santa.mappers.UserMapper;
+import Secret.Santa.Secret.Santa.models.DTO.UserDTO;
 import Secret.Santa.Secret.Santa.repos.IUserRepo;
 import Secret.Santa.Secret.Santa.services.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    private final UserMapper userMapper;
 
     public AuthenticationResponse register(RegisterRequest request) {
         UserDTO userDTO = UserDTO.fromRegisterRequest(request);
@@ -49,6 +50,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
+                .userDTO(userMapper.toUserDTO(user))
                 .build();
     }
 

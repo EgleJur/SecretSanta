@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Card, Image, Header, Button } from "semantic-ui-react";
+import { Card, Image } from "semantic-ui-react";
 import { useParams } from "react-router-dom";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { GiftList } from "./GiftList";
 import { GroupList } from "./GroupList";
 import AuthContext from "../AuthContext";
-
 
 export function ViewUser() {
   const navigate = useNavigate();
@@ -14,13 +13,16 @@ export function ViewUser() {
     name: "",
     email: "",
   });
+
+  // const { appState, setAppState } = useContext(AuthContext);
+
   const fetchUser = async () => {
     try {
       const response = await fetch("/api/v1/users/" + params.id, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer' + localStorage.getItem('token'),
+          Authorization: "Bearer " + localStorage.getItem("token"),
         },
       });
       if (!response.ok) {
@@ -29,11 +31,9 @@ export function ViewUser() {
       const jsonResponse = await response.json();
       setUser(jsonResponse);
       console.log("Fetched User:", jsonResponse);
-      
     } catch (error) {
       console.error("Error fetching user:", error);
     }
-    
   };
 
   useEffect(() => {
@@ -102,8 +102,7 @@ export function ViewUser() {
           </Card.Content>
         </Card>
       </div>
-      <div className="ui two column stackable grid">
-      </div>
+      <div className="ui two column stackable grid"></div>
       <GroupList handleCreateGroupClick={handleCreateGroupClick} />
       <GiftList handleCreateGiftClick={handleCreateGiftClick} />
     </div>

@@ -25,14 +25,12 @@ public class Gift {
     private String link;
     @Column(name = "Price")
     private double price;
-//    @Column(name = "Created_by")
-//    private int createdBy;
 
-    @ManyToOne(fetch = FetchType.EAGER)//cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", referencedColumnName = "user_id")
     private User createdBy;
 
-    @ManyToOne(fetch = FetchType.EAGER)//cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "group_id",
             referencedColumnName = "group_id")

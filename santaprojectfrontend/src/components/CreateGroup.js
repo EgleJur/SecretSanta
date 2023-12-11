@@ -5,6 +5,7 @@ import "./SecretSanta.css";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
+  Authorization: "Bearer " + localStorage.getItem("token"),
 };
 
 export function CreateGroup() {
@@ -20,7 +21,13 @@ export function CreateGroup() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/v1/users");
+      const response = await fetch("/api/v1/users", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -30,7 +37,7 @@ export function CreateGroup() {
       console.error("Error fetching users:", error);
     }
   };
-  
+
   const createGroup = () => {
     console.log("Selected Users:", user);
     console.log("Owner:", ownerId);
@@ -39,7 +46,7 @@ export function CreateGroup() {
       name,
       eventDate,
       budget,
-      user,
+      user: user || [],
       ownerId,
     };
     console.log("Request Body:", JSON.stringify(requestBody));
@@ -103,7 +110,14 @@ export function CreateGroup() {
             multiple
           />
 
-          <Button icon basic labelPosition="left" className="" as={Link} to={`/users/${params.id}`}>
+          <Button
+            icon
+            basic
+            labelPosition="left"
+            className=""
+            as={Link}
+            to={`/users/${params.id}`}
+          >
             <Icon name="arrow left" />
             Back
           </Button>

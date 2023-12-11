@@ -9,8 +9,8 @@ import Secret.Santa.Secret.Santa.repos.IGiftRepo;
 import Secret.Santa.Secret.Santa.repos.IGroupRepo;
 import Secret.Santa.Secret.Santa.repos.IUserRepo;
 import Secret.Santa.Secret.Santa.services.IGroupService;
-import Secret.Santa.Secret.Santa.validationUnits.GroupUtils;
-import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.GroupUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -36,16 +36,6 @@ public class GroupServiceImpl implements IGroupService {
     private final GroupMapper groupMapper;
     private final GroupUtils groupUtils;
     private final IGiftRepo iGiftRepo;
-
-//    @Autowired
-//    public GroupServiceImpl(IGroupRepo groupRepo, IUserRepo userRepo, UserUtils userUtils, GroupMapper groupMapper, GroupUtils groupUtils, IGiftRepo iGiftRepo) {
-//        this.groupRepo = groupRepo;
-//        this.userRepo = userRepo;
-//        this.userUtils = userUtils;
-//        this.groupMapper = groupMapper;
-//        this.groupUtils = groupUtils;
-//        this.iGiftRepo = iGiftRepo;
-//    }
 
     @Override
     public List<GroupDTO> getAllGroups() {
@@ -106,7 +96,6 @@ public class GroupServiceImpl implements IGroupService {
             User owner = userRepo.findById(groupDTO.getOwnerId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + groupDTO.getOwnerId()));
             group.getUser().add(owner);
-//            group.setUser(Collections.singletonList(owner));
 
             Group savedGroup = groupRepo.save(group);
             return groupMapper.toGroupDTO(savedGroup);
@@ -117,18 +106,12 @@ public class GroupServiceImpl implements IGroupService {
         }
     }
 
-    //    @Override
-//    public List<Group> getAllGroupsForUser(Integer userId) {
-//        User user = userUtils.getUserById(userId);
-//        return groupRepo.findByUserContaining(user);
-//    }
     @Override
     public List<GroupDTO> getAllGroupsForUser(Integer userId) {
         try {
             User user = userUtils.getUserById(userId);
             List<Group> groups = groupRepo.findByUserContaining(user);
 
-            // Assuming groupMapper is a mapper class you have
             return groups.stream()
                     .map(groupMapper::toGroupDTO)
                     .collect(Collectors.toList());
@@ -138,19 +121,12 @@ public class GroupServiceImpl implements IGroupService {
         }
     }
 
-    //
-//    @Override
-//    public List<Group> getAllGroupsForOwner(Integer userId) {
-//        User user = userUtils.getUserById(userId);
-//        return groupRepo.findByOwner(user);
-//    }
     @Override
     public List<GroupDTO> getAllGroupsForOwner(Integer userId) {
         try {
             User user = userUtils.getUserById(userId);
             List<Group> groups = groupRepo.findByOwner(user);
 
-            // Assuming groupMapper is a mapper class you have
             return groups.stream()
                     .map(groupMapper::toGroupDTO)
                     .collect(Collectors.toList());
@@ -209,8 +185,14 @@ public class GroupServiceImpl implements IGroupService {
 
 
     public List<User> getAllUsersById(int groupId) {
-        return groupRepo.findById(groupId).get().getUser();
-
+        try {
+            return groupRepo.findById(groupId)
+                    .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId))
+                    .getUser();
+        } catch (Exception e) {
+            logger.error("Error retrieving users for group with ID: {}", groupId, e);
+            throw e;
+        }
     }
 
 }

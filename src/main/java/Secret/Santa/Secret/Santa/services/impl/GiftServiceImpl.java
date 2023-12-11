@@ -6,11 +6,10 @@ import Secret.Santa.Secret.Santa.models.DTO.GiftDTO;
 import Secret.Santa.Secret.Santa.models.Gift;
 import Secret.Santa.Secret.Santa.models.Group;
 import Secret.Santa.Secret.Santa.models.User;
-import Secret.Santa.Secret.Santa.models.User;
 import Secret.Santa.Secret.Santa.repos.IGiftRepo;
 import Secret.Santa.Secret.Santa.services.IGiftService;
-import Secret.Santa.Secret.Santa.validationUnits.GroupUtils;
-import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.GroupUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -33,14 +32,6 @@ public class GiftServiceImpl implements IGiftService {
 
     private final GroupUtils groupUtils;
     private final UserUtils userUtils;
-
-//    @Autowired
-//    public GiftServiceImpl(GiftMapper giftMapper, IGiftRepo iGiftRepo, GroupUtils groupUtils, UserUtils userUtils) {
-//        this.giftMapper = giftMapper;
-//        this.iGiftRepo = iGiftRepo;
-//        this.groupUtils = groupUtils;
-//        this.userUtils = userUtils;
-//    }
 
     @Override
     public List<GiftDTO> getAllGifts() {
@@ -68,17 +59,6 @@ public class GiftServiceImpl implements IGiftService {
             throw e;
         }
     }
-//    @Override
-//    public GiftDTO getGiftById(int giftId) {
-//        Optional<Gift> optionalGift = iGiftRepo.findById(giftId);
-//
-//        if (optionalGift.isPresent()) {
-//            Gift gift = optionalGift.get();
-//            return giftMapper.toGiftDTO(gift);
-//        }
-//
-//        throw new EntityNotFoundException("Gift not found with id " + giftId);
-//    }
 
     @Override
     public GiftDTO createGift(GiftDTO giftDTO) {
@@ -94,7 +74,6 @@ public class GiftServiceImpl implements IGiftService {
                 throw new SantaValidationException("Price cannot be bigger than group budget", "price", "BiggerThanBudget", String.valueOf(giftDTO.getPrice()));
             }
 
-            //giftDTO.setCreatedBy(userId);
             Gift gift = giftMapper.toGift(giftDTO);
             Gift savedGift = iGiftRepo.save(gift);
             return giftMapper.toGiftDTO(savedGift);
@@ -150,7 +129,12 @@ public class GiftServiceImpl implements IGiftService {
 
     @Override
     public List<Gift> getGiftsCreatedBy(int userId) {
-        User user = userUtils.getUserById(userId);
-        return iGiftRepo.findByCreatedBy(user);
+        try {
+            User user = userUtils.getUserById(userId);
+            return iGiftRepo.findByCreatedBy(user);
+        } catch (Exception e) {
+            logger.error("Error retrieving gifts created by user with ID: {}", userId, e);
+            throw e;
+        }
     }
 }

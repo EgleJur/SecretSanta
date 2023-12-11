@@ -1,21 +1,21 @@
-package Secret.Santa.Secret.Santa.validationUnits;
+package Secret.Santa.Secret.Santa.services.validationUnits;
 
 import Secret.Santa.Secret.Santa.exception.SantaValidationException;
 import Secret.Santa.Secret.Santa.models.Group;
+import Secret.Santa.Secret.Santa.models.User;
 import Secret.Santa.Secret.Santa.repos.IGroupRepo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class GroupUtils {
 
     @Autowired
     private final IGroupRepo groupRepository;
+    private final UserUtils userUtils;
 
-
-    public GroupUtils(IGroupRepo groupRepository) {
-        this.groupRepository = groupRepository;
-    }
 
     public Group getGroupById(Integer id) {
         return groupRepository.findById(id)
@@ -23,14 +23,9 @@ public class GroupUtils {
                         "Group not found", String.valueOf(id)));
     }
 
-//    public List<User> getUsersInGroup(Group group) {
-//        List<User> usersInGroup = groupRepository.findById(group);
-//
-//        if (usersInGroup.isEmpty()) {
-//            throw new SantaValidationException("No users in group", "id",
-//                    "Users not found in the group", String.valueOf(group.getGroupId()));
-//        }
-//
-//        return usersInGroup;
-//    }
+    public boolean isUserInGroup(int userId, int groupId) {
+        Group group = getGroupById(groupId);
+        User user = userUtils.getUserById(userId);
+        return group.getUser().contains(user);
+    }
 }

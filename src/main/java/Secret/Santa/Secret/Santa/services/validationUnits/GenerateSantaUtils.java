@@ -1,4 +1,4 @@
-package Secret.Santa.Secret.Santa.validationUnits;
+package Secret.Santa.Secret.Santa.services.validationUnits;
 
 import Secret.Santa.Secret.Santa.exception.SantaValidationException;
 import Secret.Santa.Secret.Santa.models.GenerateSanta;
@@ -50,16 +50,4 @@ public class GenerateSantaUtils {
         return generateSantaRepo.existsBySantaAndRecipientAndGroup(user1, user2, group) ||
                 generateSantaRepo.existsBySantaAndRecipientAndGroup(user2, user1, group);
     }
-
-
-//    public boolean existsByName(String name) {
-//        return generateSantaRepo.existsByNameIgnoreCase(name);
-//    }
-//
-//    public void checkGroupNameUnique(String name) {
-//        if (existsByName(name)) {
-//            throw new ScheduleValidationException("Group name must be unique",
-//                    "name", "Name already exists", name);
-//        }
-//    }
 }

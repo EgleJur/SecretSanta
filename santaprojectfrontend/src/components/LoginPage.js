@@ -2,116 +2,81 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../AuthContext";
 import { Button, Form, Grid, Segment } from "semantic-ui-react";
-import { jwtDecode } from "jwt-decode";
-
-export function getUsername() {
-  const token = localStorage.getItem("token");
-  if (token !== null) {
-    const decoded = jwtDecode(token);
-    return decoded.sub;
-  }
-  return null;
-}
-
-export function setUsernameIndex() {
-  const username = getUsername();
-  const hash = username
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-  const index = (hash % 25) + 1;
-  localStorage.setItem("avatar", index);
-  return index;
-}
 
 export function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [user, setUser] = useState("");
-  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const { appState, setAppState } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [state, setState] = useState({
-    username: "",
-    password: "",
-    loading: false,
-  });
-
-  const listUrl = useHref("/menus/list");
-
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value);
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
 
-  //   const handleSubmit = (event) => {
-  //     if(!appState.isAuthenticated){
-  //     setAppState({ type: "LOADING", value: true })
-  //     event.preventDefault();
+  const handleRegisterClick = () => {
+    navigate(`/auth/register`);
+  };
 
-  //     const credentials = {
-  //       username: username,
-  //       password: password
-  //     };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  // fetch('api/v1/login', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     // 'Accept': 'application/json'
-  //   },
-  //   body: JSON.stringify(credentials)
-  // })
-  //   .then(applyResult)
-  //   .catch((error) => {
-  //     setError('An error occurred. Please try again later.');
-  //   })
-  // }
-  // else{
-  //     alert("You are already logged in");
-  // setAppState({ type: "AUTHENTICATED", value: true })
-  //     }
-  //   };
+    if (!appState.isAuthenticated) {
+      setAppState({ type: "LOADING", value: true });
 
-  //   const applyResult = (result) => {
-  //     const clear = () => {
-  //         clearForm();
-  //     }
-  //         if (result.ok) {
-  //            setAppState({type: "LOGIN", value: true })
-  //            navigate('/menus/list');
-  //         } else {
-  //           setError('Login failed. Please try again.');
-  //         }
-  //   }
-  //   const clearForm = () => {
-  //     setState({
-  //         ...state, user: '',
-  //         password: null,
-  //     })
-  // }
+      const credentials = {
+        email: email,
+        password: password,
+      };
 
-  // const { appState, setAppState } = useContext(AuthContext)
+      try {
+        const response = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(credentials),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem("token", data.access_token);
+
+          setAppState({ type: "LOGIN", value: true });
+          navigate(`/users/${data.user.userId}`);
+        } else {
+          setError("Login failed. Please try again.");
+        }
+      } catch (error) {
+        setError("An error occurred. Please try again later.");
+      } finally {
+        setAppState({ type: "LOADING", value: false });
+      }
+    } else {
+      alert("You are already logged in");
+      setAppState({ type: "AUTHENTICATED", value: true });
+    }
+  };
 
   return (
     <Grid centered columns={2}>
       <Grid.Column>
         <h2>Log in</h2>
-        <Segment color="red" inverted>
-          <Form color="red" inverted>
+        <Segment style={{ backgroundColor: "rgb(250, 110, 110" }} inverted>
+          <Form style={{ backgroundColor: "rgb(250, 110, 110" }} inverted>
             <Form.Group widths="equal">
               <Form.Field>
-                <label>User name</label>
+                <label>Email address</label>
                 <input
-                  type="text"
-                  name="username"
-                  placeholder="User name"
-                  value={username}
-                  onChange={handleUsernameChange}
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={handleEmailChange}
                 />
               </Form.Field>
               <Form.Field>
@@ -126,12 +91,22 @@ export function LoginPage() {
               </Form.Field>
             </Form.Group>
             <Button
+              fluid
               type="submit"
               color="white"
               inverted
-              //   onClick={handleSubmit}
+              onClick={handleSubmit}
             >
-              Confirm
+              Login
+            </Button>
+            <Button
+              className="create mt-2"
+              color="white"
+              inverted
+              fluid
+              onClick={handleRegisterClick}
+            >
+              Register
             </Button>
           </Form>
         </Segment>

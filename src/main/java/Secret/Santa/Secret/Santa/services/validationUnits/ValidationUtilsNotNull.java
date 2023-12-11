@@ -1,4 +1,4 @@
-package Secret.Santa.Secret.Santa.validationUnits;
+package Secret.Santa.Secret.Santa.services.validationUnits;
 
 import Secret.Santa.Secret.Santa.exception.SantaValidationException;
 

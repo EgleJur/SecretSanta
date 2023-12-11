@@ -7,9 +7,9 @@ import Secret.Santa.Secret.Santa.models.Group;
 import Secret.Santa.Secret.Santa.models.User;
 import Secret.Santa.Secret.Santa.repos.IGenerateSantaRepo;
 import Secret.Santa.Secret.Santa.services.IGenerateSantaService;
-import Secret.Santa.Secret.Santa.validationUnits.GenerateSantaUtils;
-import Secret.Santa.Secret.Santa.validationUnits.GroupUtils;
-import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.GenerateSantaUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.GroupUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,15 +31,6 @@ public class GenerateSantaServiceImpl implements IGenerateSantaService {
     private final GenerateSantaUtils generateSantaUtils;
     private final GroupUtils groupUtils;
     private final UserUtils userUtils;
-
-
-//    public GenerateSantaServiceImpl(IGenerateSantaRepo generateSantaRepository,
-//                                    GenerateSantaUtils generateSantaUtils, GroupUtils groupUtils, UserUtils userUtils) {
-//        this.generateSantaRepository = generateSantaRepository;
-//        this.generateSantaUtils = generateSantaUtils;
-//        this.groupUtils = groupUtils;
-//        this.userUtils = userUtils;
-//    }
 
     @Override
     public List<GenerateSanta> getAllGenerateSantaByGroup(Integer groupId) {
@@ -115,26 +106,27 @@ public class GenerateSantaServiceImpl implements IGenerateSantaService {
 
         Group group = groupUtils.getGroupById(groupId);
         if (generateSantaUtils.existsByGroup(group)) {
-            throw new SantaValidationException("Generate santa for group exits: ", "", "", "");
+            throw new SantaValidationException("Generate_Santa already exists for group", "groupId",
+                    "Generate_Santa found", String.valueOf(groupId));
         }
         List<User> usersInGroup = group.getUser();
 
         if (usersInGroup.size() <= 2) {
             logger.error("Not enough participants in the group to generate Secret Santa pairs.");
-            throw new SantaValidationException("Exceeded maximum attempts to find a recipient for Santa: ", "", "", "");
+            throw new SantaValidationException("Not enough participants in the group to generate Secret Santa pairs", "participants",
+                    "Add more users to group", "more than 2");
         }
 
         List<User> shuffledUsers = new ArrayList<>(usersInGroup);
         Collections.shuffle(shuffledUsers);
 
         int maxAttempts = 100;
-        Set<User> pairedSantas = new HashSet<>();
         Map<User, User> pairings = new HashMap<>();
 
         for (int i = 0; i < shuffledUsers.size(); i++) {
             User santa = usersInGroup.get(i);
 
-            if (pairedSantas.contains(santa)) {
+            if (pairings.containsKey(santa)) {
                 continue;
             }
 
@@ -144,11 +136,9 @@ public class GenerateSantaServiceImpl implements IGenerateSantaService {
             while (attempts <= maxAttempts) {
                 recipient = shuffledUsers.get((i + attempts + 1) % shuffledUsers.size());
 
-                if (!pairedSantas.contains(recipient) && !generateSantaUtils.alreadyPaired(santa, recipient, group)) {
-                    pairedSantas.add(santa);
-                    pairedSantas.add(recipient);
+                if (recipient != santa && (!pairings.containsKey(recipient) || pairings.get(recipient) != santa)
+                        && !pairings.containsValue(recipient)) {
                     pairings.put(santa, recipient);
-                    pairings.put(recipient, santa);
                     break;
                 }
 
@@ -160,13 +150,16 @@ public class GenerateSantaServiceImpl implements IGenerateSantaService {
                 break;
             }
         }
-
-        for (Map.Entry<User, User> entry : pairings.entrySet()) {
-            GenerateSanta santaPair = new GenerateSanta();
-            santaPair.setGroup(group);
-            santaPair.setSanta(entry.getKey());
-            santaPair.setRecipient(entry.getValue());
-            generateSantaRepository.save(santaPair);
+        if (pairings.size() != shuffledUsers.size()) {
+            randomSantaGenerator(groupId);
+        } else {
+            for (Map.Entry<User, User> entry : pairings.entrySet()) {
+                GenerateSanta santaPair = new GenerateSanta();
+                santaPair.setGroup(group);
+                santaPair.setSanta(entry.getKey());
+                santaPair.setRecipient(entry.getValue());
+                generateSantaRepository.save(santaPair);
+            }
         }
     }
 

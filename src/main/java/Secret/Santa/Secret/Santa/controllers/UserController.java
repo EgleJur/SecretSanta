@@ -7,28 +7,29 @@ import Secret.Santa.Secret.Santa.services.IUserService;
 import Secret.Santa.Secret.Santa.services.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
-
-import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @Validated
+@RequiredArgsConstructor
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
-    private IUserRepo iUserRepo;
-    @Autowired
-    private IUserService iUserService;
+    private final IUserService iUserService;
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
@@ -56,12 +57,17 @@ public class UserController {
 
     @GetMapping("/{userid}")
     public ResponseEntity<UserDTO> getUserById(@Valid
-                                            @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                            @PathVariable int userid) {
+                                               @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
+                                               @PathVariable int userid, Principal principal) {
 
+        String authenticatedEmail = principal.getName();
         try {
             UserDTO userDTO = iUserService.findByUserid(userid);
-            return ResponseEntity.ok(userDTO);
+            if (userDTO.getEmail().equals(authenticatedEmail)) {
+                return ResponseEntity.ok(userDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
         } catch (Exception e) {
             logger.error("Error retrieving user with ID: {}", userid, e);
             return ResponseEntity.notFound().build();
@@ -69,11 +75,17 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO userDTO) {
-
+    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO userDTO, Principal principal) {
+        String authenticatedEmail = principal.getName();
         try {
             UserDTO user = iUserService.editByUserId(userDTO);
-            return ResponseEntity.ok(user);
+            if (userDTO.getEmail().equals(authenticatedEmail)) {
+                return ResponseEntity.ok(user);
+            } else {
+                // Return 403 Forbidden if the authenticated user doesn't match
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
         } catch (Exception e) {
             logger.error("Error updating user with ID: {}", e);
             return ResponseEntity.notFound().build();
@@ -95,16 +107,23 @@ public class UserController {
         }
     }
 
-//    @GetMapping(path = "name-filter/{nameText}")
-//    @ResponseBody
-//    public List<UserDTO> getUsersByNameContaining(@PathVariable String nameText) {
-//        return iUserService.getUsersByNameContaining(nameText);
-//    }
-
     @GetMapping("/search")
     public ResponseEntity<List<UserDTO>> searchUsersByName(@RequestParam String name) {
-        List<UserDTO> matchingUsers = iUserService.getUsersByNameContaining(name);
-        return ok(matchingUsers);
+        try {
+            List<UserDTO> matchingUsers = iUserService.getUsersByNameContaining(name);
+            return ResponseEntity.ok(matchingUsers);
+        } catch (Exception e) {
+            logger.error("Error searching users with name containing '{}'", name, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/users/{username}")
+    public ResponseEntity<Integer> getUserByUsername(@Valid
+                                                     @PathVariable(name = "username") String username) {
+
+        User user = iUserService.loadUserByEmail(username);
+        return ResponseEntity.ok(user.getUserId());
     }
 
     @GetMapping("/users/{username}")

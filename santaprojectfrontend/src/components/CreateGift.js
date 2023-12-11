@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Card, Icon } from "semantic-ui-react";
 import { Link, useNavigate, useParams} from "react-router-dom";
-// import { apiUrl } from "../App";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
+  Authorization: "Bearer " + localStorage.getItem("token"),
 };
 
 export function CreateGift() {
@@ -17,7 +17,6 @@ export function CreateGift() {
   const [createdBy, setCreatedBy] = useState(parseInt(params.id));
   const [groupId, setGroupId] = useState("");
   const [giftId, setGiftId] = useState("");
-  const [users, setUsers] = useState([]);
   const [groupList, setGroupList] = useState([]);
 
   const createGift = () => {
@@ -49,7 +48,13 @@ export function CreateGift() {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch(`/api/v1/groups/user/${parseInt(params.id)}/groups`);
+      const response = await fetch(`/api/v1/groups/user/${parseInt(params.id)}/groups` , {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

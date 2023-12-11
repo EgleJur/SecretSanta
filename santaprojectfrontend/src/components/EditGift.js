@@ -4,7 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const JSON_HEADERS = {
     "Content-Type": "application/json",
-};
+    Authorization: "Bearer " + localStorage.getItem("token"),
+  };
 
 export function EditGift() {
     const params = useParams();
@@ -18,12 +19,18 @@ export function EditGift() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchGiftDetails(params.giftId);
-    }, [params.giftId]);
+        fetchGiftDetails(params.userId, params.giftId);
+    }, [params.userId, params.giftId]);
 
-    const fetchGiftDetails = async (id) => {
+    const fetchGiftDetails = async (userId, id) => {
         try {
-            const response = await fetch(`/api/v1/gifts/${id}`);
+            const response = await fetch(`/api/v1/gifts//users/${userId}/gifts/${id}`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + localStorage.getItem('token'), 
+                },
+              });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

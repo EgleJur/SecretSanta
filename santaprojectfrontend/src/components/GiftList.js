@@ -5,7 +5,6 @@ import { useParams, useNavigate } from "react-router-dom";
 export function GiftList() {
   const params = useParams();
   const [gifts, setGifts] = useState([]);
-  const [user, setUser] = useState();
   const [recipient, setRecipient] = useState(null);
 
   const [giftImage, setGiftImage] = useState([
@@ -28,7 +27,7 @@ export function GiftList() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer' + localStorage.getItem('token'), 
+          Authorization: "Bearer " + localStorage.getItem('token'), 
         },
       });
       if (!response.ok) {
@@ -48,7 +47,7 @@ export function GiftList() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: 'Bearer' + localStorage.getItem('token'), 
+          Authorization: "Bearer " + localStorage.getItem('token'), 
         },
       });
       

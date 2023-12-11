@@ -1,4 +1,4 @@
-package Secret.Santa.Secret.Santa.validationUnits;
+package Secret.Santa.Secret.Santa.services.validationUnits;
 
 import Secret.Santa.Secret.Santa.exception.SantaValidationException;
 import Secret.Santa.Secret.Santa.models.Group;
@@ -25,17 +25,4 @@ public class UserUtils {
                 .orElseThrow(() -> new SantaValidationException("User does not exist", "id",
                         "User not found", String.valueOf(id)));
     }
-
-//    public List<User> getUsersInGroup(Group group) {
-//        List<User> usersInGroup = userRepository.findByGroups(group);
-//
-//        if (usersInGroup.isEmpty()) {
-//            throw new SantaValidationException("No users in group", "id",
-//                    "Users not found in the group", String.valueOf(group.getGroupId()));
-//        }
-//
-//        return usersInGroup;
-//    }
-
-
 }

@@ -4,8 +4,8 @@ import Secret.Santa.Secret.Santa.models.DTO.GiftDTO;
 import Secret.Santa.Secret.Santa.models.Gift;
 import Secret.Santa.Secret.Santa.models.Group;
 import Secret.Santa.Secret.Santa.models.User;
-import Secret.Santa.Secret.Santa.validationUnits.GroupUtils;
-import Secret.Santa.Secret.Santa.validationUnits.UserUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.GroupUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
 import org.springframework.stereotype.Component;
 
 @Component

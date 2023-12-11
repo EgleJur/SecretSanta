@@ -47,7 +47,9 @@ public class AuthenticationController {
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e){
             log.warn(e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Password is incorrect"));
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Password is incorrect"));
         }
     }
 }

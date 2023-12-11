@@ -1,8 +1,6 @@
-import logo from "./logo.svg";
 import "./App.css";
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { GroupList } from "./components/GroupList";
 import { ViewGroup } from "./components/ViewGroup";
 import { CreateUser } from "./components/CreateUser";
 import { CreateGift } from "./components/CreateGift";
@@ -14,8 +12,8 @@ import { Navbar } from "./components/Navbar";
 import ChatRoom from "./components/ChatRoom";
 import { Container } from "semantic-ui-react";
 import AuthContext from "./AuthContext";
+import { HomePage } from "./components/HomePage";
 
-// const apiUrl = "http://localhost:8085";
 
 function App() {
   var initState = {
@@ -57,6 +55,10 @@ function App() {
   };
   const [appState, setAppState] = useReducer(auth, initState);
 
+  useEffect(() => {
+    console.log("AppState changed:", appState);
+  });
+
   return (
     <div className="App">
       <Container>
@@ -65,7 +67,7 @@ function App() {
             <Navbar />
             <div className="container">
               <Routes>
-                <Route path="/" element={<LoginPage />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/auth/login" element={<LoginPage />} />
                 <Route path="/auth/register" element={<CreateUser />} />
                 <Route path="/users/:id" element={<ViewUser />} />
