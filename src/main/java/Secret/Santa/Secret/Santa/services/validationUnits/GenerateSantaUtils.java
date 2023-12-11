@@ -46,8 +46,8 @@ public class GenerateSantaUtils {
                         "Generate_Santa not found", String.valueOf(user.getUserId())));
     }
 
-    public boolean alreadyPaired(User user1, User user2, Group group) {
-        return generateSantaRepo.existsBySantaAndRecipientAndGroup(user1, user2, group) ||
-                generateSantaRepo.existsBySantaAndRecipientAndGroup(user2, user1, group);
-    }
+//    public boolean alreadyPaired(User user1, User user2, Group group) {
+//        return generateSantaRepo.existsBySantaAndRecipientAndGroup(user1, user2, group) ||
+//                generateSantaRepo.existsBySantaAndRecipientAndGroup(user2, user1, group);
+//    }
 }
