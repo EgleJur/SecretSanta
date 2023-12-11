@@ -4,6 +4,7 @@ import Secret.Santa.Secret.Santa.models.DTO.UserDTO;
 import Secret.Santa.Secret.Santa.models.User;
 import Secret.Santa.Secret.Santa.repos.IUserRepo;
 import Secret.Santa.Secret.Santa.services.IUserService;
+import Secret.Santa.Secret.Santa.services.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -114,13 +117,4 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
-    @GetMapping("/users/{username}")
-    public ResponseEntity<Integer> getUserByUsername(@Valid
-                                                     @PathVariable(name = "username") String username) {
-
-        User user = iUserService.loadUserByEmail(username);
-        return ResponseEntity.ok(user.getUserId());
-    }
-
 }
