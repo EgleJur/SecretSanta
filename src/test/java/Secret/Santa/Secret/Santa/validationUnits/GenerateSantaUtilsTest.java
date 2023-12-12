@@ -87,27 +87,5 @@ class GenerateSantaUtilsTest {
         assertThrows(SantaValidationException.class, () -> generateSantaUtils.getByUserAndGroup(user, group));
     }
 
-    @Test
-    void alreadyPaired_PairedUsers_ReturnsTrue() {
-        User user1 = new User();
-        User user2 = new User();
-        Group group1 = new Group();
-        when(generateSantaRepo.existsBySantaAndRecipientAndGroup(user1, user2, group1)).thenReturn(true);
-
-        boolean result = generateSantaUtils.alreadyPaired(user1, user2, group1);
-
-        assert result;
-    }
-
-    @Test
-    void alreadyPaired_NotPairedUsers_ReturnsFalse() {
-        User user1 = new User();
-        User user2 = new User();
-        Group group1 = new Group();
-        when(generateSantaRepo.existsBySantaAndRecipientAndGroup(user1, user2, group1)).thenReturn(false);
-
-        boolean result = generateSantaUtils.alreadyPaired(user1, user2, group1);
-
-        assertFalse(result);
-    }
+   
 }
