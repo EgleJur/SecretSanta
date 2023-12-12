@@ -4,6 +4,7 @@ import Secret.Santa.Secret.Santa.models.DTO.GroupDTO;
 import Secret.Santa.Secret.Santa.models.Group;
 import Secret.Santa.Secret.Santa.services.IGroupService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.Mockito.*;
@@ -66,14 +68,15 @@ class GroupControllerTest {
         groupDTO.setName("Christmas Party");
         groupDTO.setEventDate(LocalDate.of(2023, 12, 25));
         groupDTO.setBudget(100.0);
-        groupDTO.setOwnerId(1); // Set an owner ID as it's a required field
-        // Set other required fields if needed to satisfy the validation
+        groupDTO.setOwnerId(123);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        String jsonContent = objectMapper.writeValueAsString(groupDTO);
 
         GroupDTO group = new GroupDTO();
         when(groupService.createGroup(any(GroupDTO.class))).thenReturn(group);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonContent = objectMapper.writeValueAsString(groupDTO);
 
         mockMvc.perform(post("/api/v1/groups")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,19 +84,34 @@ class GroupControllerTest {
                 .andExpect(status().isCreated());
     }
 
-
     @Test
+    @WithMockUser(username = "testUser", roles = {"USER"})
     void updateGroup() throws Exception {
         int groupId = 1;
+        
         GroupDTO groupDTO = new GroupDTO();
-        GroupDTO updatedGroup = new GroupDTO();
-        when(groupService.editByGroupId(any(GroupDTO.class))).thenReturn(updatedGroup);
+        groupDTO.setGroupId(groupId);
+        groupDTO.setBudget(100.0);
+        groupDTO.setName("Updated Group Name");
+        groupDTO.setOwnerId(123);
+        groupDTO.setEventDate(LocalDate.of(2023, 12, 25));
 
-        mockMvc.perform(put("/api/v1/groups/{groupId}", groupId)
+        when(groupService.editByGroupId(any(GroupDTO.class))).thenReturn(groupDTO);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        String jsonContent = objectMapper.writeValueAsString(groupDTO);
+
+        mockMvc.perform(put("/api/v1/groups")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}")) //TODO Replace {} with aJSON content for GroupDTO
-                .andExpect(status().isOk());
+                        .content(jsonContent)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.groupId").value(groupDTO.getGroupId()))
+                .andExpect(jsonPath("$.name").value(groupDTO.getName()));
+
     }
+
 
     @Test
     void deleteGroup() throws Exception {
