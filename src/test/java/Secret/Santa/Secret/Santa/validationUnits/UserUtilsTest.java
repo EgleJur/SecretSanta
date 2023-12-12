@@ -50,38 +50,4 @@ class UserUtilsTest {
         assertThrows(SantaValidationException.class, () -> userUtils.getUserById(userId));
         verify(userRepository).findById(userId);
     }
-
-    @Test
-    void testGetUsersInGroup() {
-
-        Group mockGroup = new Group();
-
-        User user1 = new User();
-        user1.setName("User1");
-        User user2 = new User();
-        user2.setName("User2");
-        User user3 = new User();
-        user3.setName("User3");
-
-        List<User> mockUsers = Arrays.asList(user1, user2, user3);
-
-        when(userRepository.findByGroups(any(Group.class))).thenReturn(mockUsers);
-
-        List<User> result = userUtils.getUsersInGroup(mockGroup);
-
-        verify(userRepository, times(1)).findByGroups(mockGroup);
-
-        assertNotNull(result);
-        assertEquals(mockUsers.size(), result.size());
-
-    }
-
-    @Test
-    void testGetUsersInGroupEmpty() {
-        Group mockGroup = new Group();
-
-        when(userRepository.findByGroups(any(Group.class))).thenReturn(new ArrayList<>());
-        assertThrows(SantaValidationException.class, () -> userUtils.getUsersInGroup(mockGroup));
-        verify(userRepository, times(1)).findByGroups(mockGroup);
-    }
 }

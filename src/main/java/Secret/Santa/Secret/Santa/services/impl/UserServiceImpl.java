@@ -1,5 +1,6 @@
 package Secret.Santa.Secret.Santa.services.impl;
 
+import Secret.Santa.Secret.Santa.confs.ApplicationConfig;
 import Secret.Santa.Secret.Santa.mappers.UserMapper;
 import Secret.Santa.Secret.Santa.models.DTO.UserDTO;
 import Secret.Santa.Secret.Santa.models.Role;
@@ -98,6 +99,7 @@ public class UserServiceImpl implements IUserService, UserDetailsService {
         }
         throw new EntityNotFoundException("User not found with id " + userDTO.getUserId());
     }
+
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
