@@ -86,6 +86,4 @@ class GenerateSantaUtilsTest {
 
         assertThrows(SantaValidationException.class, () -> generateSantaUtils.getByUserAndGroup(user, group));
     }
-
-   
 }
