@@ -119,6 +119,7 @@ class GiftServiceImplTest {
         Group group = new Group();
         group.setBudget(100);
 
+
         Gift inputGift = new Gift();
         inputGift.setGiftId(1);
         inputGift.setGroup(group);
@@ -135,6 +136,7 @@ class GiftServiceImplTest {
         when(giftMapper.toGiftDTO(updatedGift)).thenReturn(inputGiftDTO);
 
         GiftDTO result = giftService.updateGift(inputGiftDTO);
+
 
         assertNotNull(result);
         assertEquals(inputGiftDTO.getGiftId(), result.getGiftId());
