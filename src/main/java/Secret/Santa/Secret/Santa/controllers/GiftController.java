@@ -46,17 +46,17 @@ public class GiftController {
     @GetMapping("/users/{userId}/gifts/{giftId}")
     public ResponseEntity<GiftDTO> getGiftById(@Valid
                                                @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                               @PathVariable int userId, @PathVariable int giftId, Principal principal) {
-        String authenticatedEmail = principal.getName();
+                                               @PathVariable int userId, @PathVariable int giftId) {//, Principal principal) {
+//        String authenticatedEmail = principal.getName();
 
         giftUtils.giftBelongsToUser(userId, giftId);
         try {
-            if (userUtils.getUserById(userId).getEmail().equals(authenticatedEmail)) {
-                GiftDTO giftDTO = giftService.getGiftById(giftId);
-                return ResponseEntity.ok(giftDTO);
-            } else {
-                throw new AccessDeniedException("Authenticated user does not have access to this user's group");
-            }
+//            if (userUtils.getUserById(userId).getEmail().equals(authenticatedEmail)) {
+            GiftDTO giftDTO = giftService.getGiftById(giftId);
+            return ResponseEntity.ok(giftDTO);
+//            } else {
+//                throw new AccessDeniedException("Authenticated user does not have access to this user's group");
+//            }
         } catch (Exception e) {
             logger.error("Error retrieving gift with ID: {}", giftId, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -75,15 +75,15 @@ public class GiftController {
     }
 
     @PutMapping
-    public ResponseEntity<GiftDTO> updateGift(@RequestBody GiftDTO giftDTO, Principal principal) {
-        String authenticatedEmail = principal.getName();
+    public ResponseEntity<GiftDTO> updateGift(@RequestBody GiftDTO giftDTO) {//, Principal principal) {
+        //  String authenticatedEmail = principal.getName();
         try {
-            if (userUtils.getUserById(giftDTO.getCreatedBy()).getEmail().equals(authenticatedEmail)) {
-                GiftDTO updatedGiftDTO = giftService.updateGift(giftDTO);
-                return new ResponseEntity<>(updatedGiftDTO, HttpStatus.OK);
-            } else {
-                throw new AccessDeniedException("Authenticated user does not have access to this user's gifts");
-            }
+            //    if (userUtils.getUserById(giftDTO.getCreatedBy()).getEmail().equals(authenticatedEmail)) {
+            GiftDTO updatedGiftDTO = giftService.updateGift(giftDTO);
+            return new ResponseEntity<>(updatedGiftDTO, HttpStatus.OK);
+//            } else {
+//                throw new AccessDeniedException("Authenticated user does not have access to this user's gifts");
+//            }
         } catch (Exception e) {
             logger.error("Error updating gift with ID: {}", giftDTO.getGiftId(), e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
