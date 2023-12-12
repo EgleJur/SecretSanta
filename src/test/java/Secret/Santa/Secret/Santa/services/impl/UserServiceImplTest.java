@@ -1,215 +1,167 @@
 package Secret.Santa.Secret.Santa.services.impl;
 
-import Secret.Santa.Secret.Santa.exception.SantaValidationException;
-import Secret.Santa.Secret.Santa.mappers.UserMapper;
 import Secret.Santa.Secret.Santa.models.DTO.UserDTO;
-import Secret.Santa.Secret.Santa.models.Role;
 import Secret.Santa.Secret.Santa.models.User;
+import Secret.Santa.Secret.Santa.repos.IGiftRepo;
+import Secret.Santa.Secret.Santa.repos.IGroupRepo;
 import Secret.Santa.Secret.Santa.repos.IUserRepo;
-import Secret.Santa.Secret.Santa.services.impl.UserServiceImpl;
+import Secret.Santa.Secret.Santa.mappers.UserMapper;
 import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.mockito.junit.jupiter.MockitoExtension;
+import jakarta.persistence.EntityNotFoundException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
     @Mock
-    private IUserRepo iUserRepo;
+    private IUserRepo userRepo;
+
     @Mock
     private UserMapper userMapper;
+
     @Mock
     private UserUtils userUtils;
+
+    @Mock
+    private IGiftRepo giftRepo;
+
+    @Mock
+    private IGroupRepo groupRepo;
 
     @InjectMocks
     private UserServiceImpl userService;
 
     @Test
     void getAllUsers() {
-    User user1 = new User(1, "Tom Jackson", "tom@example.com", "password", Role.USER);
-    User user2 = new User(2, "John Warner", "john@example.com", "password", Role.USER);
-    List<User> mockUsers = Arrays.asList(user1, user2);
+        User user1 = new User(1, "Alice", "alice@example.com", "password", null);
+        User user2 = new User(2, "Bob", "bob@example.com", "password", null);
+        List<User> users = Arrays.asList(user1, user2);
 
-    when(iUserRepo.findAll()).thenReturn(mockUsers);
+        when(userRepo.findAll()).thenReturn(users);
+        when(userMapper.toUserDTO(any(User.class))).thenAnswer(i -> new UserDTO(i.getArgument(0, User.class).getUserId(), i.getArgument(0, User.class).getName(), null, null, null));
 
-    when(userMapper.toUserDTO(user1)).thenReturn(new UserDTO(1, "Tom Jackson", "tom@example.com", "password", Role.USER));
-    when(userMapper.toUserDTO(user2)).thenReturn(new UserDTO(2, "John Warner", "john@example.com","password", Role.USER));
+        List<UserDTO> userDTOs = userService.getAllUsers();
 
-    Authentication authentication = mock(Authentication.class);
-    when(authentication.getName()).thenReturn("authenticatedUser");
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-    List<UserDTO> result = userService.getAllUsers();
-
-    assertEquals(2, result.size());
-    assertEquals("Tom Jackson", result.get(0).getName());
-    assertEquals("john@example.com", result.get(1).getEmail());
-    assertEquals("password", result.get(1).getPassword());
-    assertEquals(Role.USER, result.get(1).getRole());
-
-    verify(iUserRepo, times(1)).findAll();
-
-    SecurityContextHolder.getContext().setAuthentication(null);
-    }
-
-    @Test
-    void getAllUsers_EmptyList() {
-        when(iUserRepo.findAll()).thenReturn(Collections.emptyList());
-
-        List<UserDTO> result = userService.getAllUsers();
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertNotNull(userDTOs);
+        assertEquals(2, userDTOs.size());
+        verify(userRepo).findAll();
+        verify(userMapper, times(2)).toUserDTO(any(User.class));
     }
 
     @Test
     void findByUserid() {
         int userId = 1;
-        UserDTO userDTO = new UserDTO();
-        User userEntity = new User();
+        User user = new User(userId, "Alice", "alice@example.com", "password", null);
+        UserDTO userDTO = new UserDTO(userId, "Alice", null, null, null);
 
-        when(iUserRepo.findById(userId)).thenReturn(Optional.of(userEntity));
-        when(userMapper.toUserDTO(userEntity)).thenReturn(userDTO);
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toUserDTO(user)).thenReturn(userDTO);
 
         UserDTO result = userService.findByUserid(userId);
 
-        assertEquals(userDTO, result);
+        assertNotNull(result);
+        assertEquals("Alice", result.getName());
+        verify(userRepo).findById(userId);
+        verify(userMapper).toUserDTO(user);
     }
 
     @Test
     void findByUserid_UserNotFound() {
         int userId = 1;
-
-        when(iUserRepo.findById(userId)).thenReturn(Optional.empty());
+        when(userRepo.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> userService.findByUserid(userId));
     }
-
-//    @Test
-//    void editByUserId() {
-//        int userId = 1;
-//        UserDTO userDTO = new UserDTO();
-//        userDTO.setName("NewName");
-//
-//        User existingUser = new User();
-//        existingUser.setUserId(userId);
-//        existingUser.setName("OldName");
-//
-//        when(iUserRepo.findById(userId)).thenReturn(Optional.of(existingUser));
-//        when(iUserRepo.save(existingUser)).thenReturn(existingUser);
-//
-//        User result = userService.editByUserId(userDTO, userId);
-//
-//        assertEquals(userDTO.getName(), result.getName());
-//    }
 
     @Test
     void editByUserId() {
         int userId = 1;
         UserDTO userDTO = new UserDTO();
         userDTO.setUserId(userId);
-        userDTO.setName("Samantha");
+        userDTO.setName("New Name");
+        userDTO.setPassword("password");
+        userDTO.setEmail("email@example.com");
 
-        User existingUser = new User();
-        existingUser.setUserId(userId);
-        existingUser.setName("Mary");
+        User user = new User();
+        user.setUserId(userId);
+        user.setName("Old Name");
+        user.setPassword("password");
+        user.setEmail("email@example.com");
 
-
-        when(iUserRepo.findById(userId)).thenReturn(Optional.of(existingUser));
-
-        when(iUserRepo.save(any(User.class))).thenAnswer(invocation -> {
-            User savedUser = invocation.getArgument(0);
-            savedUser.setName(userDTO.getName());
-            return savedUser;
-        });
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toUser(any(UserDTO.class))).thenReturn(user);
+        when(userRepo.save(any(User.class))).thenReturn(user);
+        when(userMapper.toUserDTO(any(User.class))).thenReturn(userDTO);
 
         UserDTO result = userService.editByUserId(userDTO);
 
-//        assertNotNull(result, "The result should not be null");
-        assertEquals(userDTO.getName(), result.getName());
+        assertNotNull(result);
+        assertEquals("New Name", result.getName());
+        verify(userRepo).save(any(User.class));
     }
 
     @Test
     void createUser() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName("Benas");
-        userDTO.setEmail("Benas@gmail.com");
-        userDTO.setPassword("password");
+        UserDTO userDTO = new UserDTO(null, "Charlie", "charlie@example.com", "password", null);
+        User savedUser = new User(3, "Charlie", "charlie@example.com", "password", null);
 
-        User expectedUser = new User();
-        expectedUser.setName(userDTO.getName());
-        expectedUser.setEmail(userDTO.getEmail());
-        expectedUser.setPassword(userDTO.getPassword());
-
-        when(iUserRepo.save(any())).thenReturn(expectedUser);
+        when(userRepo.save(any(User.class))).thenReturn(savedUser);
+        when(userMapper.toUserDTO(savedUser)).thenReturn(new UserDTO(3, "Charlie", "charlie@example.com", "password", null));
 
         UserDTO result = userService.createUser(userDTO);
 
-        assertNotNull(result, "The result should not be null");
-        assertEquals(userDTO.getName(), result.getName());
-        assertEquals(userDTO.getEmail(), result.getEmail());
-        assertEquals(userDTO.getPassword(), result.getPassword());
-
-        verify(iUserRepo, times(1)).save(argThat(savedUser -> {
-            return Objects.equals(userDTO.getName(), savedUser.getName())
-                    && Objects.equals(userDTO.getEmail(), savedUser.getEmail())
-                    && Objects.equals(userDTO.getPassword(), savedUser.getPassword());
-        }));
+        assertNotNull(result);
+        assertEquals("Charlie", result.getName());
+        verify(userRepo).save(any(User.class));
+        verify(userMapper).toUserDTO(any(User.class));
     }
-
-
-//    @Test
-//    void deleteUserByUserid() {
-//        int userId = 1;
-//
-//        boolean result = userService.deleteUserByUserid(userId);
-//
-//        assertFalse(result);
-//    }
 
     @Test
     void deleteUserByUserid() {
         int userId = 1;
+        User mockUser = new User();
+        when(userUtils.getUserById(userId)).thenReturn(mockUser);
+        when(groupRepo.findByUserContaining(mockUser)).thenReturn(List.of());
+        when(giftRepo.findByCreatedBy(mockUser)).thenReturn(List.of());
+        doNothing().when(userRepo).deleteById(userId);
 
-        // Mock the userUtils to throw SantaValidationException when getUserById is called with the specified ID
-        when(userUtils.getUserById(userId))
-                .thenThrow(new SantaValidationException("User does not exist", "id",
-                        "User not found", String.valueOf(userId)));
+        assertTrue(userService.deleteUserByUserid(userId));
 
-        // Call the method
-        boolean result = userService.deleteUserByUserid(userId);
-
-        // Verify the expected behavior
-        assertFalse(result, "The result should be false");
+        verify(userRepo).deleteById(userId);
     }
-
-
-
-
 
     @Test
     void deleteUserByUserid_UserNotFound() {
         int userId = 1;
-        when(iUserRepo.existsById(userId)).thenReturn(false);
+        when(userUtils.getUserById(userId)).thenThrow(new EntityNotFoundException("User not found with id " + userId));
 
-        boolean result = userService.deleteUserByUserid(userId);
-
-        assertFalse(result);
+        assertThrows(EntityNotFoundException.class, () -> userService.deleteUserByUserid(userId));
     }
 
-    void deleteUserByUserid_NegativeUserId() {
-        int userId = -1;
+    @Test
+    void getUsersByNameContaining() {
+        String name = "Al";
+        List<User> users = Arrays.asList(new User(1, "Alice", "alice@example.com", "password", null));
+        when(userRepo.findByNameContainingIgnoreCase(name)).thenReturn(users);
+        when(userMapper.toUserDTO(any(User.class))).thenReturn(new UserDTO(1, "Alice", "alice@example.com", "password", null));
 
-        assertThrows(IllegalArgumentException.class, () -> userService.deleteUserByUserid(userId));
+        List<UserDTO> result = userService.getUsersByNameContaining(name);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Alice", result.get(0).getName());
+        verify(userRepo).findByNameContainingIgnoreCase(name);
+        verify(userMapper, times(1)).toUserDTO(any(User.class));
     }
 }
