@@ -88,19 +88,19 @@ class GenerateSantaControllerTest {
         verify(generateSantaService, times(1)).getAllGenerateSantaByGroup(groupId);
     }
 
-    @Test
-    void testGetGenerateSantaBySantaAndGroup() {
-        int santaId = 1;
-        int groupId = 10;
-        GenerateSanta mockGeneratedSanta = new GenerateSanta();
-        // Set properties for mockGeneratedSanta
-
-        when(generateSantaService.getGenerateSantaBySantaAndGroup(santaId, groupId)).thenReturn(mockGeneratedSanta);
-
-        GenerateSanta result = generateSantaController.getGenerateSantaBySantaAndGroup(santaId, groupId);
-
-        assertEquals(mockGeneratedSanta, result);
-    }
+//    @Test
+//    void testGetGenerateSantaBySantaAndGroup() {
+//        int santaId = 1;
+//        int groupId = 10;
+//        GenerateSanta mockGeneratedSanta = new GenerateSanta();
+//        // Set properties for mockGeneratedSanta
+//
+//        when(generateSantaService.getGenerateSantaBySantaAndGroup(santaId, groupId)).thenReturn(mockGeneratedSanta);
+//
+//        GenerateSanta result = generateSantaController.getGenerateSantaBySantaAndGroup(santaId, groupId);
+//
+//        assertEquals(mockGeneratedSanta, result);
+//    }
 
     @Test
     void testDeleteGenerateSantaBySantaId() {

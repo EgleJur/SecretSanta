@@ -1,8 +1,16 @@
 package Secret.Santa.Secret.Santa.controllers;
 
+import Secret.Santa.Secret.Santa.mappers.GiftMapper;
 import Secret.Santa.Secret.Santa.models.DTO.GiftDTO;
 import Secret.Santa.Secret.Santa.models.Gift;
+import Secret.Santa.Secret.Santa.models.Group;
+import Secret.Santa.Secret.Santa.models.User;
+import Secret.Santa.Secret.Santa.repos.IGiftRepo;
 import Secret.Santa.Secret.Santa.services.IGiftService;
+import Secret.Santa.Secret.Santa.services.impl.UserServiceImpl;
+import Secret.Santa.Secret.Santa.services.validationUnits.GiftUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.GroupUtils;
+import Secret.Santa.Secret.Santa.services.validationUnits.UserUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +19,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,6 +43,18 @@ class GiftControllerTest {
     private GiftController giftController;
 
     private MockMvc mockMvc;
+    @Mock
+    private UserServiceImpl userService;
+    @Mock
+    private UserUtils userUtils;
+    @Mock
+    private GiftUtils giftUtils;
+    @Mock
+    private GroupUtils groupUtils;
+    @Mock
+    private IGiftRepo iGiftRepo;
+    @Mock
+    private GiftMapper giftMapper;
 
     @BeforeEach
     void setup() {
@@ -48,51 +71,71 @@ class GiftControllerTest {
                 .andExpect(jsonPath("$.size()").value(gifts.size()));
     }
 
-//    @Test
-//    void getGiftById() throws Exception {
-//        int giftId = 1;
-//        GiftDTO gift = new GiftDTO();
-//        when(giftService.getGiftById(giftId)).thenReturn(gift);
-//
-//        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/gifts/{giftId}", giftId))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.name").value(gift.getName()));
-//    }
+    @Test
+    @WithMockUser(username = "testUser", roles = {"USER"})
+    void getGiftById() throws Exception {
+        int userId = 1;
+        int giftId = 1;
 
-//    @Test
-//    void createGift() throws Exception {
-//        GiftDTO giftDto = new GiftDTO();
-//        giftDto.setName("gifty");
-//        GiftDTO createdGift = new GiftDTO();
-//
-//        doReturn(createdGift).when(giftService).createGift(any(GiftDTO.class));
-//
-//        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/gifts")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(new ObjectMapper().writeValueAsString(giftDto)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.name").value(createdGift.getName()));
-//
-//        verify(giftService, times(1)).createGift(any(GiftDTO.class));
-//
-//    }
+        // Mocking the behavior for the service calls
+        GiftDTO gift = new GiftDTO();
+        gift.setCreatedBy(userId); // Set createdBy field to userId
+        gift.setName("Example Gift"); // Set a name for the gift for testing purposes
+        when(giftService.getGiftById(anyInt())).thenReturn(gift);
 
-//    @Test
-//    void updateGift() throws Exception {
-//        GiftDTO updatedGiftDTO = new GiftDTO();
-//        updatedGiftDTO.setName("Updated Gift");
-//
-//        Gift updatedGift = new Gift();
-//        updatedGift.setGiftId(1);
-//        updatedGift.setName(updatedGiftDTO.getName());
-//        when(giftService.updateGift(eq(1), any(GiftDTO.class))).thenReturn(updatedGift);
-//
-//        mockMvc.perform(put("/api/v1/gifts/1")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(new ObjectMapper().writeValueAsString(updatedGiftDTO)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.name").value("Updated Gift"));
-//    }
+        // Performing the request to the endpoint
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/gifts/users/{userId}/gifts/{giftId}", userId, giftId)
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(gift.getName()));
+    }
+
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"USER"})
+    void createGift() throws Exception {
+        // Given
+        GiftDTO giftDto = new GiftDTO();
+        giftDto.setName("gifty");
+        giftDto.setDescription("A description");
+        giftDto.setLink("https://example.com");
+        giftDto.setPrice(10.5); // Ensure a positive non-null value for price
+        giftDto.setCreatedBy(1); // Ensure a non-null value for createdBy
+        giftDto.setGroupId(1); // Ensure a non-null value for groupId
+
+        // Mocking the service to return createdGift upon createGift method call
+        when(giftService.createGift(any(GiftDTO.class))).thenReturn(giftDto);
+
+        // When-Then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/gifts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(giftDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(giftDto.getName()));
+
+        // Verifying the service method is called
+        verify(giftService, times(1)).createGift(any(GiftDTO.class));
+    }
+
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"USER"})
+    void updateGift() throws Exception {
+        // Create a mock updated gift object
+        GiftDTO updatedGiftDTO = new GiftDTO();
+        updatedGiftDTO.setGiftId(1);
+        updatedGiftDTO.setName("Updated Gift");
+
+        // Mock the behavior for the service call to updateGift
+        when(giftService.updateGift(any(GiftDTO.class))).thenReturn(updatedGiftDTO);
+
+        mockMvc.perform(put("/api/v1/gifts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updatedGiftDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Updated Gift"));
+    }
+
 
     @Test
     void deleteGift() throws Exception {
