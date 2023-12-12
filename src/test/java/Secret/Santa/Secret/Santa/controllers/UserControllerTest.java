@@ -62,39 +62,43 @@ class UserControllerTest {
         assertEquals(mockUser, responseEntity.getBody());
     }
 
-//    @Test
-//    @WithMockUser(username = "testUser", roles = {"USER"})
-//    void getUserById() {
-//        int userId = 1;
-//        UserDTO mockUser = new UserDTO();
-//        mockUser.setEmail("example@example.com");
-//
-//        // Mock Principal
-//        Principal mockPrincipal = Mockito.mock(Principal.class);
-//        Mockito.when(mockPrincipal.getName()).thenReturn("authenticatedEmail");
-//
-//        when(userService.findByUserid(userId)).thenReturn(mockUser);
-//
-//        ResponseEntity<UserDTO> responseEntity = userController.getUserById(userId, mockPrincipal);
-//
-//        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-//        assertEquals(mockUser, responseEntity.getBody());
-//    }
+    @Test
+    @WithMockUser(username = "testUser", roles = {"USER"})
+    void getUserById() {
+        int userId = 1;
+        UserDTO mockUser = new UserDTO();
+        mockUser.setEmail("authenticatedEmail");
+
+        Principal mockPrincipal = Mockito.mock(Principal.class);
+        Mockito.when(mockPrincipal.getName()).thenReturn("authenticatedEmail");
+
+        when(userService.findByUserid(userId)).thenReturn(mockUser);
+
+        ResponseEntity<UserDTO> responseEntity = userController.getUserById(userId, mockPrincipal);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(mockUser, responseEntity.getBody());
+    }
 
 
-    //
-//    @Test
-//    void updateUser() {
-//        int userId = 1;
-//        UserDTO userDTO = new UserDTO();
-//        User mockUser = new User();
-//        when(userService.editByUserId(userDTO)).thenReturn(mockUser);
-//
-//        ResponseEntity<User> responseEntity = userController.updateUser(userDTO);
-//
-//        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-//        assertEquals(mockUser, responseEntity.getBody());
-//    }
+    @Test
+    void updateUser() {
+        int userId = 1;
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("authenticatedEmail");
+
+        Principal mockPrincipal = Mockito.mock(Principal.class);
+        Mockito.when(mockPrincipal.getName()).thenReturn("authenticatedEmail");
+
+        UserDTO mockUserDTO = new UserDTO();
+        when(userService.editByUserId(userDTO)).thenReturn(mockUserDTO);
+
+        ResponseEntity<UserDTO> responseEntity = userController.updateUser(userDTO, mockPrincipal);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(mockUserDTO, responseEntity.getBody());
+    }
+
 
     @Test
     void deleteUser() {
