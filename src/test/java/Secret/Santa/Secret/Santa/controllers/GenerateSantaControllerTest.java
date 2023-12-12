@@ -33,8 +33,9 @@ class GenerateSantaControllerTest {
         User santa = new User();
         User recipient = new User();
         Group group = new Group();
+        Integer id = 1;
 
-        GenerateSantaDTO generateSantaDTO = new GenerateSantaDTO(group, santa, recipient);
+        GenerateSantaDTO generateSantaDTO = new GenerateSantaDTO(id, group, santa, recipient);
         // Set properties for generateSantaDTO
         GenerateSanta createdSanta = new GenerateSanta();
         // Set properties for createdSanta

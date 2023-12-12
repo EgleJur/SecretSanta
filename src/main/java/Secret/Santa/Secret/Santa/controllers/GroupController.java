@@ -47,7 +47,7 @@ public class GroupController {
     @GetMapping("/{groupId}")
     public ResponseEntity<GroupDTO> getGroupById(@Valid
                                                  @Min(value = 1, message = "ID must be a non-negative integer and greater than 0")
-                                                 @PathVariable int groupId, Principal principal) {
+                                                 @PathVariable int groupId) {
 
         try {
             GroupDTO groupDTO = iGroupService.getGroupById(groupId);
