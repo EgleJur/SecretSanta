@@ -77,13 +77,11 @@ class GiftControllerTest {
         int userId = 1;
         int giftId = 1;
 
-        // Mocking the behavior for the service calls
         GiftDTO gift = new GiftDTO();
-        gift.setCreatedBy(userId); // Set createdBy field to userId
-        gift.setName("Example Gift"); // Set a name for the gift for testing purposes
+        gift.setCreatedBy(userId);
+        gift.setName("Example Gift");
         when(giftService.getGiftById(anyInt())).thenReturn(gift);
 
-        // Performing the request to the endpoint
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/gifts/users/{userId}/gifts/{giftId}", userId, giftId)
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -99,21 +97,18 @@ class GiftControllerTest {
         giftDto.setName("gifty");
         giftDto.setDescription("A description");
         giftDto.setLink("https://example.com");
-        giftDto.setPrice(10.5); // Ensure a positive non-null value for price
-        giftDto.setCreatedBy(1); // Ensure a non-null value for createdBy
-        giftDto.setGroupId(1); // Ensure a non-null value for groupId
+        giftDto.setPrice(10.5);
+        giftDto.setCreatedBy(1);
+        giftDto.setGroupId(1);
 
-        // Mocking the service to return createdGift upon createGift method call
         when(giftService.createGift(any(GiftDTO.class))).thenReturn(giftDto);
 
-        // When-Then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/gifts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(giftDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(giftDto.getName()));
 
-        // Verifying the service method is called
         verify(giftService, times(1)).createGift(any(GiftDTO.class));
     }
 
@@ -121,12 +116,10 @@ class GiftControllerTest {
     @Test
     @WithMockUser(username = "testUser", roles = {"USER"})
     void updateGift() throws Exception {
-        // Create a mock updated gift object
         GiftDTO updatedGiftDTO = new GiftDTO();
         updatedGiftDTO.setGiftId(1);
         updatedGiftDTO.setName("Updated Gift");
 
-        // Mock the behavior for the service call to updateGift
         when(giftService.updateGift(any(GiftDTO.class))).thenReturn(updatedGiftDTO);
 
         mockMvc.perform(put("/api/v1/gifts")

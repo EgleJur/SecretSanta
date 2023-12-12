@@ -23,7 +23,7 @@ class ValidationUtilsNotNullTest {
 
     @Test
     void isValidById_EmptyId() {
-        Long id = null; // Or any value representing an empty ID
+        Long id = null;
         assertThrows(SantaValidationException.class, () -> ValidationUtilsNotNull.isValidById(id));
     }
 

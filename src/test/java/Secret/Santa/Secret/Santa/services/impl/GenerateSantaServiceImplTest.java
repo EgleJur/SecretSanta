@@ -77,7 +77,6 @@ class GenerateSantaServiceImplTest {
     void getAllGenerateSantaByGroup_Success() {
         int groupId = 1;
         Group group = new Group();
-        // Setup group mocks if needed
 
         List<GenerateSanta> expectedGenerateSantaList = new ArrayList<>();
         when(groupUtils.getGroupById(groupId)).thenReturn(group);
@@ -92,24 +91,40 @@ class GenerateSantaServiceImplTest {
     @Test
     void getAllGenerateSantaByGroup_GroupNotFound() {
         int groupId = 1;
-        // Simulate the group not being found
         when(groupUtils.getGroupById(groupId)).thenThrow(new SantaValidationException("Group does not exist", "id",
                 "Group not found", String.valueOf(groupId)));
 
         assertThrows(SantaValidationException.class, () -> generateSantaService.getAllGenerateSantaByGroup(groupId));
         verify(groupUtils).getGroupById(groupId);
-        verifyNoInteractions(generateSantaRepository); // Make sure the repository was not called
+        verifyNoInteractions(generateSantaRepository);
     }
 
 
     @Test
-    void getGenerateSantaBySantaAndGroup_Success() {
-        //can't make this because there is
-        // @Setter(value = AccessLevel.NONE)
-        //    private int groupId;
+    void testGetGenerateSantaBySantaAndGroup() {
+        int santaId = 1;
+        int groupId = 10;
+
+        User santa = new User();
+        santa.setUserId(santaId);
+
+        Group group = new Group();
+        group.setGroupId(groupId);
+
+        GenerateSanta generatedSanta = new GenerateSanta();
+
+        when(userUtils.getUserById(santaId)).thenReturn(santa);
+        when(groupUtils.getGroupById(groupId)).thenReturn(group);
+        when(generateSantaUtils.getBySantaAndGroup(santa, group)).thenReturn(generatedSanta);
+
+        GenerateSanta result = generateSantaService.getGenerateSantaBySantaAndGroup(santaId, groupId);
+
+        verify(userUtils, times(1)).getUserById(santaId);
+        verify(groupUtils, times(1)).getGroupById(groupId);
+        verify(generateSantaUtils, times(1)).getBySantaAndGroup(santa, group);
+        assertEquals(generatedSanta, result);
     }
-
-
+    
     @Test
     void deleteGenerateSantaById() {
         int generateSantaId = 1;
@@ -134,19 +149,15 @@ class GenerateSantaServiceImplTest {
         int groupId = 1;
         Group group = new Group();
         when(groupUtils.getGroupById(groupId)).thenReturn(group);
-        // Assuming deletion fails and throws an exception
         doThrow(new RuntimeException("Deletion failed")).when(generateSantaRepository).deleteByGroup(group);
 
-        // Execute the method and handle the failure
         try {
             generateSantaService.deleteGenerateSantaByGroup(groupId);
             fail("Expected RuntimeException was not thrown");
         } catch (RuntimeException e) {
-            // Verify that the exception was thrown
             assertEquals("Deletion failed", e.getMessage());
         }
 
-        // Verify that deleteByGroup was called
         verify(generateSantaRepository).deleteByGroup(group);
     }
 
@@ -159,7 +170,7 @@ class GenerateSantaServiceImplTest {
 
         // Mock GenerateSanta
         GenerateSanta generateSanta = Mockito.mock(GenerateSanta.class);
-        generateSanta.setRecipient(user); // Assuming GenerateSanta has a Recipient property
+        generateSanta.setRecipient(user);
 
         when(userUtils.getUserById(userId)).thenReturn(user);
         when(groupUtils.getGroupById(groupId)).thenReturn(group);
@@ -169,7 +180,7 @@ class GenerateSantaServiceImplTest {
         generateSantaService.deleteGenerateSantaByUser(userId, groupId);
 
         verify(generateSantaRepository).delete(generateSanta);
-        verify(generateSanta, times(1)).setRecipient(null); // Verify that setRecipient was called with null
+        verify(generateSanta, times(1)).setRecipient(null);
     }
 
 

@@ -39,16 +39,12 @@ class UserControllerTest {
 
     @Test
     void getAllUsers() {
-        // Creating mock users
         List<UserDTO> mockUsers = Arrays.asList(new UserDTO(), new UserDTO());
 
-        // Mocking the UserService to return the list of users
         when(userService.getAllUsers()).thenReturn(mockUsers);
 
-        // Executing the controller method
         ResponseEntity<List<UserDTO>> responseEntity = userController.getAllUsers();
 
-        // Verifying the response
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals(mockUsers, responseEntity.getBody());
     }
@@ -86,15 +82,15 @@ class UserControllerTest {
 //    }
 
 
-//
+    //
 //    @Test
 //    void updateUser() {
 //        int userId = 1;
 //        UserDTO userDTO = new UserDTO();
 //        User mockUser = new User();
-//        when(userService.editByUserId(userDTO, userId)).thenReturn(mockUser);
+//        when(userService.editByUserId(userDTO)).thenReturn(mockUser);
 //
-//        ResponseEntity<User> responseEntity = userController.updateUser(userId, userDTO);
+//        ResponseEntity<User> responseEntity = userController.updateUser(userDTO);
 //
 //        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 //        assertEquals(mockUser, responseEntity.getBody());
