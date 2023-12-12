@@ -1,5 +1,6 @@
 package Secret.Santa.Secret.Santa.repos;
 
+import Secret.Santa.Secret.Santa.models.Group;
 import Secret.Santa.Secret.Santa.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,12 +14,9 @@ import java.util.Optional;
 @Repository
 public interface IUserRepo extends JpaRepository<User, Integer> {
 
-    //    List<User> findByGroups(Group group);
     List<User> findByNameContainingIgnoreCase(String nameText);
 
     Optional<User> findByEmail(String email);
-
-    //    List<User> findByGroups(Group group);
 
     @Modifying
     @Query(value = "DELETE FROM `users_in_groups` WHERE `user_id` = :USERID", nativeQuery = true)
