@@ -2,6 +2,7 @@ package Secret.Santa.Secret.Santa.controllers;
 
 import Secret.Santa.Secret.Santa.models.DTO.GroupDTO;
 import Secret.Santa.Secret.Santa.models.Group;
+import Secret.Santa.Secret.Santa.models.User;
 import Secret.Santa.Secret.Santa.services.IGroupService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -10,16 +11,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.security.Principal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -121,4 +128,30 @@ class GroupControllerTest {
         mockMvc.perform(delete("/api/v1/groups/{groupId}", groupId))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void testAddUserToGroup() {
+        int groupId = 1;
+        int userId = 10;
+        GroupDTO mockUpdatedGroup = new GroupDTO();
+
+        when(groupService.addUserToGroup(groupId, userId)).thenReturn(mockUpdatedGroup);
+
+        ResponseEntity<GroupDTO> response = groupController.addUserToGroup(groupId, userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(mockUpdatedGroup, response.getBody());
+    }
+
+    @Test
+    void testGetAllUsersById() throws Exception {
+        int groupId = 1;
+        List<User> users = new ArrayList<>();
+
+        when(groupService.getAllUsersById(groupId)).thenReturn(users);
+
+        mockMvc.perform(get("/api/v1/groups/{groupId}/users", groupId))
+                .andExpect(status().isOk());
+    }
+
 }
